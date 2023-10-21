@@ -42,7 +42,7 @@ db.run(`CREATE TABLE IF NOT EXISTS scooter
 
 const ScooterStatus = require('../constants/enums/scooterStatus');
 
-// Método HTTP POST /scooters - Cadastra um novo patinete.
+// POST /scooters - Cadastra um novo patinete.
 app.post('/scooters', (req, res, next) => {
     db.run(`INSERT INTO scooter (serial_number, status, longitude, latitude) VALUES(?,?,?,?)`, 
          [req.body.serial_number, req.body.status, req.body.longitude, req.body.latitude], (err) => {
@@ -56,7 +56,7 @@ app.post('/scooters', (req, res, next) => {
     });
 });
 
-// Método HTTP GET /scooters/available?latitude=""&longitude=""
+// GET /scooters/available?latitude=""&longitude=""
 // Obtém todos os patinetes com o status de habilitado proximos a uma localidade.
 app.get('/scooters/available', (req, res, next) => {
     const latitude = req.query.latitude;
@@ -99,7 +99,7 @@ app.get('/scooters/available', (req, res, next) => {
     });
 });
 
-// Método HTTP GET /scooters - Obtém todos os patinetes.
+// GET /scooters - Obtém todos os patinetes.
 app.get('/scooters', (req, res, next) => {
     db.all( `SELECT * FROM scooter`, (err, result) => {
         if (err) { 
@@ -114,7 +114,7 @@ app.get('/scooters', (req, res, next) => {
     });
 });
 
-// Método HTTP PATCH /scooters/:serialNumber/localization
+// PATCH /scooters/:serialNumber/localization
 // Atualiza os dados de localização para um patinete.
 app.patch('/scooters/:serialNumber/localization', (req, res, next) => {
     const serialNumber = req.params.serialNumber;
@@ -134,4 +134,30 @@ app.patch('/scooters/:serialNumber/localization', (req, res, next) => {
         console.log("Localization Updated!");
         res.status(200).send("Localization updated!")
     })
+})
+
+// PATCH /scooters/:serialNumber/status
+// Atualiza o status de um patinete.
+app.patch('/scooters/:serialNumber/status', (req, res, next) => {
+    const serialNumber = req.params.serialNumber;
+    const newStatus = parseInt(req.body.new_status);
+
+    const validStatus = Object.values(ScooterStatus);
+
+    if (validStatus.includes(newStatus))
+    {
+        console.log("Status doesn't exists");
+        return res.status(400).send("Status doesn't exists");
+    }
+
+    const sql = `UPDATE scooter SET status = ? WHERE serial_number = ?`;
+    db.run(sql, [newStatus, serialNumber], function (err) {
+        if (err)
+        {
+            console.log("Erro: "+ err);
+            return res.status(500).send("Error updating scooter status")
+        }
+        console.log("Status Updated!");
+        res.status(200).send("Status Updated!");
+    });
 })
