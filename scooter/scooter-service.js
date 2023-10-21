@@ -44,6 +44,16 @@ const ScooterStatus = require('../constants/enums/scooterStatus');
 
 // POST /scooters - Cadastra um novo patinete.
 app.post('/scooters', (req, res, next) => {
+
+    const status = parseInt(req.body.status);
+    const validStatus = Object.values(ScooterStatus);
+
+    if (validStatus.includes(status))
+    {
+        console.log("Status doesn't exists");
+        return res.status(400).send("Status doesn't exists");
+    }
+
     db.run(`INSERT INTO scooter (serial_number, status, longitude, latitude) VALUES(?,?,?,?)`, 
          [req.body.serial_number, req.body.status, req.body.longitude, req.body.latitude], (err) => {
         if (err) {
@@ -66,16 +76,17 @@ app.get('/scooters/available', (req, res, next) => {
         return res.status(400).json({ error: 'Latitude e longitude são obrigatórias.' });
     }
 
-    const maxDistanceInKm = 0.5;
+    const maxDistanceInKm = 5;
 
     const sql = `
         SELECT * FROM scooter
-        WHERE status = 0
+        WHERE status = ?
           AND ? >= latitude - ? AND ? <= latitude + ?
           AND ? >= longitude - ? AND ? <= longitude + ?;
     `;
 
     const params = [
+        ScooterStatus.AVAILABLE,
         parseFloat(latitude),
         maxDistanceInKm / 111.32, // 1 grau de latitude é aproximadamente 111.32 km
         parseFloat(latitude),
