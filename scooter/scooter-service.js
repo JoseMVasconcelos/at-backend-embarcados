@@ -1,22 +1,17 @@
-// Inicia o Express.js
 const express = require('express');
 const app = express();
 
-// Body Parser - usado para processar dados da requisição HTTP
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-// Inicia o Servidor HTTP na porta 8090
 let port = 8090;
 app.listen(port, () => {
  console.log('Server running on port: ' + port);
 });
 
-// Iniciando sqlite3
 const sqlite3 = require('sqlite3');
 
-// Acessa o arquivo com o banco de dados
 var db = new sqlite3.Database('./dados.db', (err) => {
     if (err) {
         console.log('ERROR: Unable to access the database.');
@@ -25,7 +20,6 @@ var db = new sqlite3.Database('./dados.db', (err) => {
     console.log('Database Connected');
 });
 
-// Cria a tabela pontos, caso ela não exista
 db.run(`CREATE TABLE IF NOT EXISTS scooter 
     (
         serial_number VARCHAR PRIMARY KEY NOT NULL UNIQUE,
