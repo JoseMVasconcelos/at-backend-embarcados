@@ -12,7 +12,7 @@ app.listen(port, () => {
 
 const sqlite3 = require('sqlite3');
 
-var db = new sqlite3.Database('./dados.db', (err) => {
+var db = new sqlite3.Database('../scooter/dados.db', (err) => {
     if (err) {
         console.log('ERROR: Unable to access the database.');
         throw err;
