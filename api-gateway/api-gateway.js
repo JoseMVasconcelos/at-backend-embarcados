@@ -12,6 +12,10 @@ function selectProxyHost(req) {
         return 'http://localhost:8091/';
     else if (req.path.startsWith('/users'))
         return 'http://localhost:8092';
+    else if (req.path.startsWith('/scooters-controller'))
+        return 'http://localhost:8093';
+    else if (req.path.startsWith('/rental'))
+        return 'http://localhost:8094';
     else return null;
 }
 
