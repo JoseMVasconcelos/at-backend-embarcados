@@ -35,9 +35,30 @@ db.run(`CREATE TABLE IF NOT EXISTS rentals
 app.post('/rentals', (req, res, next) => {
     let cpf = req.body.cpf;
     cpf = cpf.replace(/[^\d]/g, '');
-    axios.get(`http://localhost:8000/users/${cpf}`)
+    if (!cpf) {
+        return res.status(400).send("Invalid CPF!");
+    } 
+    axios.get(`http://localhost:8000/users/${cpf}`).then(() => {
+        let serialNum = req.body.serial_number;
+        axios.get(`http://localhost:8000/scooters/${serialNum}`).then(() => {
+            db.run(`INSERT INTO rentals (rental_start, rental_end, user_cpf, scooter_serial, active)
+                VALUES(datetime('now', 'localtime'), datetime('now', 'localtime', '+${req.body.rental_minutes} minutes'), ?, ?, TRUE)`,
+                [cpf, serialNum], (err) => {
+                    if (err) {
+                        console.log("Error: "+err);
+                        res.status(500).send("Error when registering rental.");
+                    } else {
+                        console.log("Rental successfully registered!");
+                        res.status(200).send("Rental successfully registered!");
+                    }
+                })
+        })
+        .catch(err => {
+            return res.status(400).send("Scooter not found");
+        })
+    })
     .catch(err => {
-        res.status(400).send("User not found");
+        return res.status(400).send("User not found");
     });
 });
 
@@ -55,11 +76,8 @@ app.get('/rentals', (req, res, next) => {
     });
 });
 
-// axios.patch(`/scooters/${serialNum}/status`, {
-//     new_status: 1
-// });
-
 let port = 8093;
 app.listen(port, () => {
  console.log('Server running on port: ' + port);
 });
+

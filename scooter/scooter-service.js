@@ -119,10 +119,25 @@ app.get('/scooters', (req, res, next) => {
     });
 });
 
+app.get('/scooters/:serial_number', (req, res, next) => {
+    db.get(`SELECT * FROM scooter WHERE serial_number = ?`,
+            req.params.serial_number, (err, result) => {
+        if (err) { 
+            console.log("Erro: "+ err);
+            res.status(500).send('Error retrieving data.');
+        } else if (!result || result.length === 0)  {
+            console.log("No Content.");
+            return res.status(400).send("No Content");
+        } else {
+            res.status(200).json(result);
+        }
+    });
+});
+
 // PATCH /scooters/:serialNumber/localization
 // Atualiza os dados de localização para um patinete.
-app.patch('/scooters/:serialNumber/localization', (req, res, next) => {
-    const serialNumber = req.params.serialNumber;
+app.patch('/scooters/:serial_number/localization', (req, res, next) => {
+    const serialNumber = req.params.serial_number;
     const { latitude, longitude } = req.body;
 
     if (latitude === undefined && longitude === undefined)
@@ -143,8 +158,8 @@ app.patch('/scooters/:serialNumber/localization', (req, res, next) => {
 
 // PATCH /scooters/:serialNumber/status
 // Atualiza o status de um patinete.
-app.patch('/scooters/:serialNumber/status', (req, res, next) => {
-    const serialNumber = req.params.serialNumber;
+app.patch('/scooters/:serial_number/status', (req, res, next) => {
+    const serialNumber = req.params.serial_number;
     const newStatus = parseInt(req.body.new_status);
 
     const validStatus = Object.values(ScooterStatus);

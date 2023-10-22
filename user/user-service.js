@@ -95,10 +95,10 @@ app.get('/users/:cpf', (req, res, next) => {
             cpf, (err, result) => {
         if (err) {
             console.log("ERROR: "+err);
-            res.status(500).send("Unable to obtain user data!");
-        } else if (result == null) {
+            return res.status(500).send("Unable to obtain user data!");
+        } else if (!result || result.lenght === 0) {
             console.log("User not found");
-            res.status(400).send("User not found");
+            return res.status(400).send("User not found");
         } else {
             res.status(200).json(result);
         }
