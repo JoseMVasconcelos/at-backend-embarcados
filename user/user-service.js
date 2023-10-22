@@ -30,7 +30,7 @@ db.run(`CREATE TABLE IF NOT EXISTS users
 }); 
 
 //Método HTTP POST /user-register - Cadastra um novo usuário
-app.post('/user-register', (req, res, next) => {
+app.post('/users', (req, res, next) => {
 
     //Validação de nome (Apenas letras)
     var name = req.body.nome;

@@ -10,6 +10,8 @@ function selectProxyHost(req) {
         return 'http://localhost:8090/';
     else if (req.path.startsWith('/payments'))
         return 'http://localhost:8091/';
+    else if (req.path.startsWith('/users'))
+        return 'http://localhost:8092';
     else return null;
 }
 
