@@ -7,7 +7,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 const sqlite3 = require('sqlite3');
 
-var db = new sqlite3.Database('../payment/dados.db', (err) => {
+var db = new sqlite3.Database(`${process.env.PWD}/payment/dados.db`, (err) => {
     if (err) {
         console.log('ERROR: Unable to access the database.');
         throw err;
@@ -57,7 +57,7 @@ app.patch('/payments/:rental_id', (req, res, next) => {
     if (!rental_id) {
         return res.status(400).send("Rental id invalid");
     }
-    const sql = `UPDATE payments SET payment_status = 1 WHERE rental_id = ?`
+    const sql = `UPDATE payments SET payment_status = 1, billing_date = datetime('now', 'localtime') WHERE rental_id = ?`
     db.run(sql, rental_id, function(err) {
         if (err) {
             console.log("Error: " + err);

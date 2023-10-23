@@ -6,8 +6,8 @@ const app = express();
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-
-var db = new sqlite3.Database('../user/dados.db', (err) => {
+console.log(process.env.PWD)
+var db = new sqlite3.Database(`${process.env.PWD}/user/dados.db`, (err) => {
     if (err) {
         console.log('ERRO: Unable to connect to SQLite!');
         throw err;

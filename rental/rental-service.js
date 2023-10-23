@@ -8,7 +8,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 const axios = require('axios').default;
 const sqlite3 = require('sqlite3');
 
-var db = new sqlite3.Database('../rental/dados.db', (err) => {
+var db = new sqlite3.Database(`${process.env.PWD}/rental/dados.db`, (err) => {
     if (err) {
         console.log('ERROR: Unable to access the database.');
         throw err;
