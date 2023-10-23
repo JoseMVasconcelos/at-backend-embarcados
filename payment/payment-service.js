@@ -54,7 +54,6 @@ app.post('/payments', (req, res, next) => {
 //Tempo de alguel acabou, atualizou o status do pagamento
 app.patch('/payments/:rental_id', (req, res, next) => {
     const rental_id = req.params.rental_id;
-    console.log(rental_id)
     if (!rental_id) {
         return res.status(400).send("Rental id invalid");
     }

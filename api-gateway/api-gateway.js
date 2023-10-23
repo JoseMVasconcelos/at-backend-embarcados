@@ -6,7 +6,9 @@ var logger = require('morgan');
 app.use(logger('dev'));
 
 function selectProxyHost(req) {
-    if (req.path.startsWith('/scooters'))
+    if (req.path.startsWith('/scooter-controller'))
+        return 'http://localhost:8094'
+    else if (req.path.startsWith('/scooters'))
         return 'http://localhost:8090/';
     else if (req.path.startsWith('/payments'))
         return 'http://localhost:8091/';

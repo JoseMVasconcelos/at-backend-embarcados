@@ -73,10 +73,13 @@ app.post('/rentals', (req, res, next) => {
                         axios.patch(`http://localhost:8000/scooters/${serialNum}/status`, {new_status: 1}).then(() => {
                             console.log("Rental successfully registered!");
                             res.status(201).send("Rental successfully registered!");
+                            axios.post(`http://localhost:8000/scooter-controller`, {lock: 'unlock', serial_number: serialNum}).catch(err => {
+                                console.log(err);
+                            })
                             }).catch(err => {
-                                return res.status(500).send("Error when updating scooter status.");
+                                return res.status(500).send("Error when updating scooter status. "+err);
                         });
-                    })
+                    });
                 }
             });
         });
@@ -119,9 +122,12 @@ setInterval(() => {
                         console.log("Rental time ended! Payment status updated!");
                     }).catch(err => {
                         console.log(err);
+                    });
+                    axios.post(`http://localhost:8000/scooter-controller`, {lock: 'lock', serial_number: rental.scooter_serial}).catch(err => {
+                        console.log(err);
                     })
                 }
             }
         }
     });
-}, 60000)
+}, 1000)
