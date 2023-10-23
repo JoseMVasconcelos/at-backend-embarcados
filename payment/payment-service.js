@@ -5,11 +5,6 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-let port = 8091;
-app.listen(port, () => {
- console.log('Server running on port: ' + port);
-});
-
 const sqlite3 = require('sqlite3');
 
 var db = new sqlite3.Database('../payment/dados.db', (err) => {
@@ -67,4 +62,9 @@ app.get('/payments', (req, res, next) => {
             res.status(200).json(result);
         }
     });
+});
+
+let port = 8091;
+app.listen(port, () => {
+ console.log('Server running on port: ' + port);
 });

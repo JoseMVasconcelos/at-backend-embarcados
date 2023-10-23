@@ -8,7 +8,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 const axios = require('axios').default;
 const sqlite3 = require('sqlite3');
 
-var db = new sqlite3.Database('../rental/dados.db', (err) => {
+var db = new sqlite3.Database('./dados.db', (err) => {
     if (err) {
         console.log('ERROR: Unable to access the database.');
         throw err;
@@ -19,10 +19,10 @@ var db = new sqlite3.Database('../rental/dados.db', (err) => {
 db.run(`CREATE TABLE IF NOT EXISTS rentals 
     (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        rental_start TEXT NOT NULL,
-        rental_end TEXT NOT NULL,
-        user_cpf TEXT NOT NULL,
-        scooter_serial TEXT NOT NULL,
+        rental_start VARCHAR NOT NULL,
+        rental_end VARCHAR NOT NULL,
+        user_cpf VARCHAR NOT NULL,
+        scooter_serial VARCHAR NOT NULL,
         active BOOL
     )`,
     [], (err) => {
@@ -39,7 +39,7 @@ app.post('/rentals', (req, res, next) => {
         return res.status(400).send("Invalid CPF!");
     } 
     axios.get(`http://localhost:8000/users/${cpf}`).then(() => {
-        let serialNum = req.body.serial_number;
+        const serialNum = req.body.serial_number;
         axios.get(`http://localhost:8000/scooters/${serialNum}`).then(() => {
             db.run(`INSERT INTO rentals (rental_start, rental_end, user_cpf, scooter_serial, active)
                 VALUES(datetime('now', 'localtime'), datetime('now', 'localtime', '+${req.body.rental_minutes} minutes'), ?, ?, TRUE)`,
@@ -49,16 +49,16 @@ app.post('/rentals', (req, res, next) => {
                         res.status(500).send("Error when registering rental.");
                     } else {
                         console.log("Rental successfully registered!");
-                        res.status(200).send("Rental successfully registered!");
+                        res.status(201).send("Rental successfully registered!");
                     }
                 })
         })
         .catch(err => {
-            return res.status(400).send("Scooter not found");
+            return res.status(204).send("Scooter not found");
         })
     })
     .catch(err => {
-        return res.status(400).send("User not found");
+        return res.status(204).send("User not found");
     });
 });
 
@@ -67,9 +67,9 @@ app.get('/rentals', (req, res, next) => {
         if (err) { 
             console.log("Erro: "+err);
             res.status(500).send('Error retrieving data.');
-        } else if (result == null) {
-            console.log("Rentals not found.");
-            res.status(404).send("Rentals not found.");
+        } else if (result === null || result.length === 0) {
+            console.log("NoContent.");
+            res.status(204).send("NoContent.");
         } else {
             res.status(200).json(result);
         }

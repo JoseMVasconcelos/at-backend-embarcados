@@ -5,11 +5,6 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-let port = 8090;
-app.listen(port, () => {
- console.log('Server running on port: ' + port);
-});
-
 const sqlite3 = require('sqlite3');
 
 var db = new sqlite3.Database('../scooter/dados.db', (err) => {
@@ -38,11 +33,11 @@ const ScooterStatus = require('../constants/enums/scooterStatus');
 
 // POST /scooters - Cadastra um novo patinete.
 app.post('/scooters', (req, res, next) => {
-
     const status = parseInt(req.body.status);
     const validStatus = Object.values(ScooterStatus);
+    console.log(status);
 
-    if (validStatus.includes(status))
+    if (!validStatus.includes(status))
     {
         console.log("Status doesn't exists");
         return res.status(400).send("Status doesn't exists");
@@ -119,6 +114,7 @@ app.get('/scooters', (req, res, next) => {
     });
 });
 
+// GET /scooters/:serial_number - Obtém um patinete pelo número serial.
 app.get('/scooters/:serial_number', (req, res, next) => {
     db.get(`SELECT * FROM scooter WHERE serial_number = ?`,
             req.params.serial_number, (err, result) => {
@@ -127,7 +123,7 @@ app.get('/scooters/:serial_number', (req, res, next) => {
             res.status(500).send('Error retrieving data.');
         } else if (!result || result.length === 0)  {
             console.log("No Content.");
-            return res.status(400).send("No Content");
+            return res.status(200).send("No Content");
         } else {
             res.status(200).json(result);
         }
@@ -140,7 +136,7 @@ app.patch('/scooters/:serial_number/localization', (req, res, next) => {
     const serialNumber = req.params.serial_number;
     const { latitude, longitude } = req.body;
 
-    if (latitude === undefined && longitude === undefined)
+    if (latitude === undefined || longitude === undefined)
     {
         res.status(400).send("Latitude and longitude are required.")
     }
@@ -164,7 +160,7 @@ app.patch('/scooters/:serial_number/status', (req, res, next) => {
 
     const validStatus = Object.values(ScooterStatus);
 
-    if (validStatus.includes(newStatus))
+    if (!validStatus.includes(newStatus))
     {
         console.log("Status doesn't exists");
         return res.status(400).send("Status doesn't exists");
@@ -181,3 +177,8 @@ app.patch('/scooters/:serial_number/status', (req, res, next) => {
         res.status(200).send("Status Updated!");
     });
 })
+
+let port = 8090;
+app.listen(port, () => {
+ console.log('Server running on port: ' + port);
+});
