@@ -18,9 +18,11 @@ var db = new sqlite3.Database('../payment/dados.db', (err) => {
 db.run(`CREATE TABLE IF NOT EXISTS payments
     (
         id INTEGER PRIMARY KEY,
+        rental_id INTEGER NOT NULL,
         card_number VARCHAR NOT NULL,
         amount DECIMAL(10, 2) NOT NULL,
-        billing_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        billing_date TEXT,
+        payment_status INTEGER NOT NULL DEFAULT 0
     )`, 
     [], (err) => {
        if (err) {
@@ -31,20 +33,39 @@ db.run(`CREATE TABLE IF NOT EXISTS payments
 
 // POST /payments - Realiza um pagamento.
 app.post('/payments', (req, res, next) => {
-    const { card_number, amount} = req.body;
+    const {rental_id, card_number, amount} = req.body;
 
-    if (!card_number || !amount) {
+    if (!card_number || !amount || !rental_id) {
         return res.status(400).send("Card number and amout are required");
     }
 
-    const sql = `INSERT INTO payments (card_number, amount) VALUES (?,?)`
-    db.run(sql, [card_number, amount], function(err) {
+    const sql = `INSERT INTO payments (rental_id, card_number, amount) VALUES (?,?,?)`
+    db.run(sql, [rental_id, card_number, amount], function(err) {
         if (err) {
             console.log("Error: " + err);
             res.status(500).send('Error when making payment.');
         } else {
             console.log("Payment made successfully")
             return res.status(200).send("Payment made successfully.");
+        }
+    });
+});
+
+//Tempo de alguel acabou, atualizou o status do pagamento
+app.patch('/payments/:rental_id', (req, res, next) => {
+    const rental_id = req.params.rental_id;
+    console.log(rental_id)
+    if (!rental_id) {
+        return res.status(400).send("Rental id invalid");
+    }
+    const sql = `UPDATE payments SET payment_status = 1 WHERE rental_id = ?`
+    db.run(sql, rental_id, function(err) {
+        if (err) {
+            console.log("Error: " + err);
+            res.status(500).send('Error when updating payment.');
+        } else {
+            console.log("Payment made successfully")
+            return res.status(200).send("Payment updated successfully.");
         }
     });
 });
@@ -63,6 +84,8 @@ app.get('/payments', (req, res, next) => {
         }
     });
 });
+
+
 
 let port = 8091;
 app.listen(port, () => {

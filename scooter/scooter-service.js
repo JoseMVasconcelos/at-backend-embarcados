@@ -123,7 +123,7 @@ app.get('/scooters/:serial_number', (req, res, next) => {
             res.status(500).send('Error retrieving data.');
         } else if (!result || result.length === 0)  {
             console.log("No Content.");
-            return res.status(200).send("No Content");
+            return res.status(204).send("No Content");
         } else {
             res.status(200).json(result);
         }
